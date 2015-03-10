@@ -1,0 +1,58 @@
+var bufferId;
+
+function Cube (gl) {
+    this.verts = [ new PV(0, 0, 0, true),
+                   new PV(1, 0, 0, true),
+                   new PV(0, 1, 0, true),
+                   new PV(1, 1, 0, true),
+                   new PV(0, 0, 1, true),
+                   new PV(1, 0, 1, true),
+                   new PV(0, 1, 1, true),
+                   new PV(1, 1, 1, true) ];
+
+    this.faces = [ [0, 1, 5, 4],
+                   [0, 4, 6, 2],
+                   [0, 2, 3, 1],
+                   [7, 3, 2, 6],
+                   [7, 6, 4, 5],
+                   [7, 5, 1, 3] ];
+
+    this.colors = [ new PV(1, 0, 0, true),
+                    new PV(0, 1, 0, true),
+                    new PV(1, 1, 0, true),
+                    new PV(0, 0, 1, true),
+                    new PV(1, 0, 1, true),
+                    new PV(0, 1, 1, true) ];
+
+    var buffers = [];
+
+    // EXERCISE:  initialize buffers.
+    for (var i = 0; i < 6; i++) {
+	bufferId= gl.createBuffer();
+	buffers.push(bufferId);
+    }
+  
+    for(var i = 0; i < 6; i++) { 
+	var vertices = [];
+	for(var j = 0; j < 4; j++) {
+	    vertices.push(this.verts[this.faces[i][j]]);
+	}
+	buffers[i] = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, buffers[i]);
+	gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
+    }
+ 
+    this.render = function (gl, program) {
+        //EXERCISE:  render all six faces of the cube.
+	var vPosition = gl.getAttribLocation(program, "vPosition");
+	var colorLoc = gl. getUniformLocation(program, "color");
+	for (var i = 0; i < 6; i++) {
+	    gl.bindBuffer(gl.ARRAY_BUFFER, buffers[i]);
+	    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
+	    gl.enableVertexAttribArray( vPosition );
+	    var color = this.colors[i];
+	    gl.uniform4fv(colorLoc, color.flatten());
+	}
+	gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertices.length);
+    }
+}
